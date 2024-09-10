@@ -7,6 +7,7 @@ use App\Models\Budget;
 use App\Models\Category;
 use App\Models\Account;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class BudgetController extends Controller
 {
@@ -100,5 +101,21 @@ class BudgetController extends Controller
         $budget->save();
 
         return response()->json(['success' => 'attachment deleted successfully.']);
+    }
+
+    public function analyticsByCategory(Request $request)
+    {
+        $in_out = $request->query('in_out');
+        $date_from = $request->query('from');
+        $date_to = $request->query('to');
+
+        $budgets = Budget::select('categories.name', DB::raw('SUM(budgets.amount) AS total'))
+        ->leftJoin('categories', 'budgets.category_id', '=', 'categories.id')
+        ->whereBetween(DB::raw('DATE(budgets.txn_datetime'), [$date_from, $date_to])
+        ->where('budgets.in_out', '=', $in_out)
+        ->groupBy('categories.name')
+        ->get();
+        dd($budgets);
+        return response()->json($budgets);
     }
 }

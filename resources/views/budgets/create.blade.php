@@ -92,29 +92,6 @@
         var minutes = String(now.getMinutes()).padStart(2, '0');
         var formattedDateTime = year + '-' + month + '-' + day + 'T' + hours + ':' + minutes;
         $('#datetime').val(formattedDateTime);
-
-        // $('#submitAddBudget').click(function(ev) {
-        //     ev.preventDefault;
-        //     var formData = new FormData($('#addBudget')[0]);
-        //     $.ajax({
-        //         type: "POST",
-        //         url: "requestHandler.php?action=addBudget",
-        //         data: formData,
-        //         dataType: 'json',
-        //         processData: false,
-        //         contentType: false,
-        //         success: function(response) {
-        //             if (response.error) {
-        //                 alert(response.error);
-        //             } else {
-        //                 window.location.href = '/budget-page.php';
-        //             }
-        //         },
-        //         error: function() {
-        //             $("#response").html("<p>An error occured.</p>");
-        //         }
-        //     });
-        // });
     })
 </script>
 

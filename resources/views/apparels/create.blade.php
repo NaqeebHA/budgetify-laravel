@@ -80,11 +80,4 @@
 </div>
 <div id="response"></div>
 
-<script>
-    $(document).ready(function() {
-
-
-    })
-</script>
-
 @endsection
