@@ -1,0 +1,88 @@
+body {
+    padding-top: 80px;
+    background-color: rgb(180, 0, 0);
+}
+.navbar {background-color: black;}
+.navbar-brand {
+    color:rgb(180, 0, 0);
+    font-weight: bolder;
+}
+.navbar-brand:hover {
+    color:rgb(180, 0, 0);
+    background-color: white;
+}
+
+.title-text{
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#addBudgetBtn {
+    background-color: black;
+    color:rgb(180, 0, 0);
+    font-weight: bolder;
+    text-align: center;
+    padding: auto;
+    outline: solid rgb(180, 0, 0) 1px;
+}
+
+#body-image {
+     max-height: 450px;
+     width: auto;
+    outline:solid blue 5px
+}
+#addBudgetBtn:hover {
+    color:rgb(180, 0, 0);
+    background-color: white;
+}
+
+#add-btn {
+    background-color: rgb(180, 0, 0);
+    color: white;
+    font-weight: bolder;
+    text-align: center;
+    padding: auto;
+    outline: solid white 2px;
+    text-align: center;
+}
+
+#add-btn:hover {
+    background-color: white;
+    color: rgb(180, 0, 0);
+    outline: solid white 2px;
+}
+
+#submit-btn {
+    background-color: 332D2D;
+    color: white;
+    font-weight: bolder;
+    text-align: center;
+    padding: auto;
+    outline: solid white 2px;
+    text-align: center;
+}
+
+#submit-btn:hover {
+    background-color: white;
+    color: black;
+    outline: solid white 2px;
+}
+
+#apparel-type {
+    color: white;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-weight: bolder;
+    font-style: italic;
+    background-color: blue;
+}
+
+.table {
+    background-color: black;
+}
+
+footer {
+    text-align: center;
+    padding: 5px;
+    color: black;
+  }
