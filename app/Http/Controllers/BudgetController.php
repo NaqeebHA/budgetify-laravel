@@ -46,7 +46,7 @@ class BudgetController extends Controller
             $created_budget->attachment = $path;
             $created_budget->save();
         }
-        return redirect()->route('budgets.index')->with('success', 'budget created successfully.');
+        return redirect()->route('budgets.index')->with('success', 'Budget added successfully.');
     }
 
     // Show the form for editing a specific budget
@@ -82,7 +82,7 @@ class BudgetController extends Controller
         } else {
             $budget->update($request->all());
         }
-        return redirect()->route('budgets.index')->with('success', 'budget updated successfully.');
+        return redirect()->route('budgets.index')->with('success', 'Budget updated successfully.');
     }
 
     // Delete a specific budget from the database
@@ -90,7 +90,7 @@ class BudgetController extends Controller
     {
         $budget->delete();
 
-        return redirect()->route('budgets.index')->with('success', 'budget deleted successfully.');
+        return redirect()->route('budgets.index')->with('success', 'Budget deleted successfully.');
     }
 
     // Delete an attachment from the budget
@@ -100,7 +100,7 @@ class BudgetController extends Controller
         $budget->attachment = null;
         $budget->save();
 
-        return response()->json(['success' => 'attachment deleted successfully.']);
+        return response()->json(['success' => 'Attachment deleted successfully.']);
     }
 
     public function analyticsByCategory(Request $request)

@@ -1,5 +1,5 @@
 <footer>
-    <small>
+    <small class="text-white">
       Copyright © 2024 Budgetify. All Rights Reserved.
     </small>
   </footer>
