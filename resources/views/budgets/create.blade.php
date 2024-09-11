@@ -101,5 +101,6 @@
         $('#datetime').val(formattedDateTime);
     })
 </script>
+<script src="{{ asset('js/image-preview.js') }}"></script>
 
 @endsection

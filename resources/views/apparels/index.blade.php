@@ -5,6 +5,9 @@
     <div class="container-fluid">
         <h1 class="title-text">Apparels</h1>
         <div class="title-text"><a id="add-btn" class="btn rounded" href="{{ route('apparels.create') }}">Add an Apparel</a></div>
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
         @if ($apparels->count())
             <table class="table table-bordered table-dark bg-dark">
@@ -13,6 +16,7 @@
                         <th>Note</th>
                         <th>Color</th>
                         <th>Brand</th>
+                        <th>Style</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -20,8 +24,9 @@
                     @foreach ($apparels as $apparel)
                         <tr>
                             <td>{{ $apparel->note }}</td>
-                            <td>{{ $apparel->color }}</td>
+                            <td style="background-color:{{ $apparel->color }}"></td>
                             <td>{{ $apparel->brand->name }}</td>
+                            <td>{{ $apparel->style->name }}</td>
                             <td>
                                 <a class="btn btn-warning text-white" href="{{ route('apparels.edit', $apparel->id) }}"><i class="bi bi-pencil-square"></i></a>
                                 <form action="{{ route('apparels.destroy', $apparel->id) }}" method="POST" style="display: inline-block;">
@@ -40,4 +45,7 @@
     </div>
     <div id="response"></div>
 
+    <script>
+        $('.table').DataTable();
+    </script>
 @endsection

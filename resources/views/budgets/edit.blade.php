@@ -4,6 +4,9 @@
 
 <div class="container-fluid">
     <h1 class="title-text">Edit Budget</h1>
+    @if (session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
     <div class="bg-dark text-light rounded-5 mx-auto p-4">
         <form action="{{ route('budgets.update', $budget->id) }}" method="POST" class="text-center" enctype="multipart/form-data">
@@ -126,5 +129,6 @@
         })
     })
 </script>
+<script src="{{ asset('js/image-preview.js') }}"></script>
 
 @endsection

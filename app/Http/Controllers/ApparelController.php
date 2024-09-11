@@ -35,14 +35,14 @@ class ApparelController extends Controller
         $request->validate([
             'note' => 'required',
             'price' => 'required',
-            'color' => 'nullable',
+            'color' => 'required',
             'description' => 'nullable',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,jfif,gif|max:2048',
             'purchased_date' => 'nullable',
             'qty' => 'required',
-            'type_id' => 'nullable',
-            'style_id' => 'nullable',
-            'brand_id' => 'nullable',
+            'type_id' => 'required',
+            'style_id' => 'required',
+            'brand_id' => 'required',
             'budget_id' => 'nullable',
         ]);
 
@@ -54,7 +54,7 @@ class ApparelController extends Controller
             $created_apparel->attachment = $path;
             $created_apparel->save();
         }
-        return redirect()->route('apparels.index')->with('success', 'apparel created successfully.');
+        return redirect()->route('apparels.index')->with('success', 'Apparel added successfully.');
     }
 
     // Show the form for editing a specific apparel
@@ -73,14 +73,14 @@ class ApparelController extends Controller
         $request->validate([
             'note' => 'required',
             'price' => 'required',
-            'color' => 'nullable',
+            'color' => 'required',
             'description' => 'nullable',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png,jfif,gif|max:2048',
             'purchased_date' => 'nullable',
             'qty' => 'required',
-            'type_id' => 'nullable',
-            'style_id' => 'nullable',
-            'brand_id' => 'nullable',
+            'type_id' => 'required',
+            'style_id' => 'required',
+            'brand_id' => 'required',
             'budget_id' => 'nullable',
         ]);
 
@@ -96,7 +96,7 @@ class ApparelController extends Controller
         } else {
             $apparel->update($request->all());
         }
-        return redirect()->route('apparels.index')->with('success', 'apparel updated successfully.');
+        return redirect()->route('apparels.index')->with('success', 'Apparel updated successfully.');
     }
 
     // Delete a specific apparel from the database
@@ -104,7 +104,7 @@ class ApparelController extends Controller
     {
         $apparel->delete();
 
-        return redirect()->route('apparels.index')->with('success', 'apparel deleted successfully.');
+        return redirect()->route('apparels.index')->with('success', 'Apparel deleted successfully.');
     }
 
     // Delete an attachment from the apparel
@@ -114,6 +114,6 @@ class ApparelController extends Controller
         $apparel->attachment = null;
         $apparel->save();
 
-        return response()->json(['success' => 'attachment deleted successfully.']);
+        return response()->json(['success' => 'Attachment deleted successfully.']);
     }
 }

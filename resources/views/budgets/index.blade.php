@@ -5,6 +5,9 @@
     <div class="container-fluid">
         <h1 class="title-text">Budgets</h1>
         <div class="title-text"><a id="add-btn" class="btn rounded" href="{{ route('budgets.create') }}">Add a Budget</a></div>
+        @if (session('success'))
+            <div class="alert alert-success">{{ session('success') }}</div>
+        @endif
 
         @if ($budgets->count())
             <table class="table table-bordered table-dark bg-dark">
@@ -46,4 +49,7 @@
     </div>
     <div id="response"></div>
 
+    <script>
+        $('.table').DataTable();
+    </script>
 @endsection
