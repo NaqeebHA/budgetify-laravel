@@ -109,13 +109,30 @@ class BudgetController extends Controller
         $date_from = $request->query('from');
         $date_to = $request->query('to');
 
-        $budgets = Budget::select('categories.name', DB::raw('SUM(budgets.amount) AS total'))
+        $budgets = Budget::select('categories.name AS category', DB::raw('SUM(budgets.amount) AS total'))
         ->leftJoin('categories', 'budgets.category_id', '=', 'categories.id')
-        ->whereBetween(DB::raw('DATE(budgets.txn_datetime'), [$date_from, $date_to])
+        // ->whereBetween(DB::raw('DATE(budgets.txn_datetime)'), [$date_from, $date_to])
+        ->whereBetween('budgets.txn_datetime', [$date_from . ' 00:00:00', $date_to . ' 23:59:59'])
         ->where('budgets.in_out', '=', $in_out)
         ->groupBy('categories.name')
         ->get();
-        dd($budgets);
+        return response()->json($budgets);
+    }
+
+    public function analyticsByAccount(Request $request)
+    {
+        $in_out = $request->query('in_out');
+        $date_from = $request->query('from');
+        $date_to = $request->query('to');
+
+        $budgets = Budget::select('accounts.name AS account', DB::raw('SUM(budgets.amount) AS total'))
+        ->leftJoin('accounts', 'budgets.account_id', '=', 'accounts.id')
+        // ->whereBetween(DB::raw('DATE(budgets.txn_datetime)'), [$date_from, $date_to])
+        ->whereBetween('budgets.txn_datetime', [$date_from . ' 00:00:00', $date_to . ' 23:59:59'])
+        ->where('budgets.in_out', '=', $in_out)
+        ->groupBy('account')
+        ->get();
+        // dd($budgets);
         return response()->json($budgets);
     }
 }

@@ -73,8 +73,8 @@
 
                         <!-- <div class="row">
                             <div class="col bg-dark mx-auto my-auto p-2">
-                                <div id="noExpenseFound" class="mx-auto my-auto"></div>
-                                <canvas id="expenseChart"></canvas>
+                                <div id="noAnalyticsFound" class="mx-auto my-auto"></div>
+                                <canvas id="chart"></canvas>
                             </div>
                             <div class="col bg-dark mx-auto p-2">
                                 <table id="expense-table" class="table table-bordered table-dark bg-dark my-auto">
@@ -140,20 +140,20 @@
 
 <script type="text/javascript">
     $(document).ready(function() {
-
+        const INCOME = 1;
+        const EXPENSE = 0;
         //datepicker
         var date_from;
         var date_to;
         var expenseChart;
         var incomeChart;
-
         var start = moment().startOf('month');
         var end = moment().endOf('month');
 
         function cb(start, end) {
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
-            fetchBudgetAnalytics(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
-            // fetchAccList(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+            fetchBudgetAnalyticsCategory(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+            fetchBudgetAnalyticsAccount(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
         }
 
         $('#reportrange').daterangepicker({
@@ -171,18 +171,15 @@
         $('#reportrange').on('apply.daterangepicker', function(ev, picker) {
             date_from = picker.startDate.format('YYYY-MM-DD');
             date_to = picker.endDate.format('YYYY-MM-DD');
-            fetchBudgetAnalytics(date_from, date_to);
-            // fetchAccList(date_from, date_to);
+            fetchBudgetAnalyticsCategory(date_from, date_to);
+            fetchBudgetAnalyticsAccount(date_from, date_to);
         });
 
         cb(start, end);
 
         //fetch json and fill table for budget
-        function fetchBudgetAnalytics(date_from, date_to)
+        function fetchBudgetAnalyticsCategory(date_from, date_to)
         {
-            const INCOME = 1;
-            const EXPENSE = 0;
-
             var expenseCategories = [];
             var expensePercentage = [];
             var expenseTotals = [];
@@ -192,76 +189,77 @@
             var incomeTotals = [];
             var colors = ['#ff6384', '#36a2eb', '#ffce56', '#cc65fe', 'green', 'red', 'blue', 'yellow'];
 
-            // ajaxInOut(INCOME);
-            ajaxInOut(EXPENSE);
-            // start ajax and table
-            function ajaxInOut($in_out)
+            ajaxBudgetCategoryInOut(INCOME);
+            ajaxBudgetCategoryInOut(EXPENSE);
+            // start ajax, table and pie chart
+            function ajaxBudgetCategoryInOut(in_out)
             {
+                var categories = in_out === INCOME ? incomeCategories : expenseCategories;
+                var percentage = in_out === INCOME ? incomePercentage : expensePercentage;
+                var totals = in_out === INCOME ? incomeTotals : expenseTotals;
+                // start ajax and table
                 $.ajax({
-                    url: `/budgets/analytics/category?in_out=${$in_out}&from=${date_from}&to=${date_to}`,
+                    url: `/budgets/analytics/category?in_out=${in_out}&from=${date_from}&to=${date_to}`,
                     method: 'GET',
-                    success: function(response) {
+                    success: function(response)
+                    {
+                        var TableHead = in_out === INCOME ? $('#income-table thead') : $('#expense-table thead');
+                        var TableBody = in_out === INCOME ? $('#income-table tbody') : $('#expense-table tbody');
+                        var noAnalyticsFound = in_out === INCOME ? $('#noIncomeFound') : $('#noExpenseFound');
 
-                        var $expenseTableHead = $('#expense-table thead');
-                        var $expenseTableBody = $('#expense-table tbody');
-                        var $noExpenseFound = $('#noExpenseFound')
-
-                        if (response.error) {
-                            // alert(response.error);
-                            $expenseTableHead.empty();
-                            $expenseTableBody.empty();
-                            $noExpenseFound.html('<p class="mx-auto text-light">' + response.error + '<p>');
+                        if (response.error || response.length == 0) {
+                            TableHead.empty();
+                            TableBody.empty();
+                            noAnalyticsFound.html(`<p class="mx-auto text-light"> ${response.error || 'no record found'} <p>`);
                         } else {
-
                             var sumTotal = response.reduce(function (sum, res) {
                                 return sum + Number(res.total);
                             }, 0);
 
-                            if (response.length == 0) {
-                                sumTotal = 1;
-                            }
+                            noAnalyticsFound.empty();
+                            TableHead.empty();
+                            TableHead.append('<tr><th>Category</th><th>Percentage</th><th>Amount</th></tr>');
+                            TableBody.empty();
 
-                            $noExpenseFound.empty();
-                            $expenseTableHead.empty();
-                            $expenseTableHead.append('<tr><th>Category</th><th>Percentage</th><th>Amount</th></tr>');
-                            $expenseTableBody.empty();
-
-                            expensePercentageCount = 0;
+                            count = 0;
 
                             $.each(response, function(index, budget) {
-                                expenseCategories.push(budget.category);
-                                expenseTotals.push(Number(budget.total));
-                                expensePercentage.push(Math.round((budget.total*100)/sumTotal));
+                                categories.push(budget.category);
+                                totals.push(Number(budget.total));
+                                percentage.push(Math.round((budget.total*100)/sumTotal));
                                 var row = '<tr>' +
-                                    '<td style="background-color:' + colors[expensePercentageCount] + '">' + budget.category + '</td>' +
-                                    '<td>' + expensePercentage[expensePercentageCount] + '%</td>' +
+                                    '<td style="background-color:' + colors[count] + '">' + budget.category + '</td>' +
+                                    '<td>' + percentage[count] + '%</td>' +
                                     '<td>' + budget.total + '</td>' +
                                     '</tr>';
-                                $expenseTableBody.append(row);
+                                TableBody.append(row);
 
-                                expensePercentageCount++;
+                                count++;
                             });
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('Request failed:', error);
                     }
-                })
-                //start expense pie chart
-                .then(function(){
-                    var ctx = document.getElementById('expenseChart').getContext('2d');
-                    if (expenseChart) {
-                        expenseChart.destroy();
+                }) // end ajax and table
+                //start pie chart
+                .then(function()
+                {
+                    var chartCanvas = in_out === INCOME ? 'incomeChart' : 'expenseChart';
+                    var chart = in_out === INCOME ? incomeChart : expenseChart;
+
+                    var ctx = document.getElementById(chartCanvas).getContext('2d');
+                    if (chart) {
+                        chart.destroy();
                     }
-                    var shortenedColors = colors.slice(0,4);
-                    expenseChart = new Chart(ctx, {
+                    chart = new Chart(ctx, {
                         type: 'pie',
                         data: {
-                            labels: expenseCategories,
+                            labels: categories,
                             datasets: [{
                                 label: 'My Pie Chart',
-                                data: expenseTotals,
-                                backgroundColor: colors.slice(0, expenseCategories.length)
+                                data: totals,
+                                backgroundColor: colors.slice(0, totals.length)
                             }]
                         },
                         options: {
@@ -280,120 +278,78 @@
                             }
                         }
                     });
-                });//end expense pie chart
+                    in_out === INCOME ? incomeChart = chart : expenseChart = chart;
+                });//end pie chart
 
             } //end ajax, table, and pie chart
 
-        }  //end fetchBudgetAnalytics method
+        }  //end fetchBudgetAnalyticsCategory method
 
-        // function fetchAccList(date_from, date_to)
-        // {
-        //     var expenseAccount = [];
-        //     var expensePercentageAcc = [];
-        //     var expenseTotalsAcc = [];
+        function fetchBudgetAnalyticsAccount(date_from, date_to)
+        {
+            var expenseAccount = [];
+            var expensePercentageAcc = [];
+            var expenseTotalsAcc = [];
 
-        //     var incomeAccount = [];
-        //     var incomePercentageAcc = [];
-        //     var incomeTotalsAcc = [];
-        //     var colorsAcc = ['blue', 'red', 'green', 'yellow', '#cc65fe', '#ffce56', '#36a2eb', '#ff6384'];
+            var incomeAccount = [];
+            var incomePercentageAcc = [];
+            var incomeTotalsAcc = [];
+            var colorsAcc = ['blue', 'red', 'green', 'yellow', '#cc65fe', '#ffce56', '#36a2eb', '#ff6384'];
 
-        //     // start account expense ajax and table
-        //     $.ajax({
-        //         url: 'requestHandler.php?action=accountRange&in_out=0' +
-        //         '&from=' + date_from + '&to=' + date_to,
-        //         method: 'GET',
-        //         success: function(response) {
+            ajaxBudgetAccountInOut(INCOME);
+            ajaxBudgetAccountInOut(EXPENSE);
+            // start account expense ajax and table
+            function ajaxBudgetAccountInOut(in_out)
+            {
+                var accounts =[];
+                var percentageAcc =[];
+                var totalsAcc = [];
+                $.ajax({
+                    url: `/budgets/analytics/account?in_out=${in_out}&from=${date_from}&to=${date_to}`,
+                    method: 'GET',
+                    success: function(response) {
 
-        //             var $expenseAccTableHead = $('#expense-acc-table thead');
-        //             var $expenseAccTableBody = $('#expense-acc-table tbody');
+                        var $AccTableHead = in_out === INCOME? $('#income-acc-table thead') : $('#expense-acc-table thead');
+                        var $AccTableBody = in_out === INCOME? $('#income-acc-table tbody') :  $('#expense-acc-table tbody');
 
-        //             if (response.error) {
-        //                 // alert(response.error);
-        //                 $expenseAccTableHead.empty();
-        //                 $expenseAccTableBody.empty();
-        //             } else {
-        //                 var sumTotal = 1;
+                        if (response.error || response.length == 0) {
+                            // alert(response.error);
+                            $AccTableHead.empty();
+                            $AccTableBody.empty();
+                        } else {
+                            var sumTotal = 1;
 
-        //                 if (response.length > 0) {
-        //                     sumTotal = response.reduce(function (sum, res) {
-        //                         return sum + Number(res.total);
-        //                     }, 0);
-        //                 }
+                            sumTotal = response.reduce(function (sum, res) {
+                                return sum + Number(res.total);
+                            }, 0);
 
-        //                 $expenseAccTableHead.empty();
-        //                 $expenseAccTableHead.append('<tr><th>Account</th><th>Percentage</th><th>Amount</th></tr>');
-        //                 $expenseAccTableBody.empty();
+                            $AccTableHead.empty();
+                            $AccTableHead.append('<tr><th>Account</th><th>Percentage</th><th>Amount</th></tr>');
+                            $AccTableBody.empty();
 
-        //                 expensePercentageAccCount = 0;
+                            count = 0;
 
-        //                 $.each(response, function(index, budget) {
-        //                     expenseAccount.push(budget.account);
-        //                     expenseTotalsAcc.push(Number(budget.total));
-        //                     expensePercentageAcc.push(Math.round((budget.total*100)/sumTotal));
-        //                     var row = '<tr>' +
-        //                         '<td style="background-color:' + colorsAcc[expensePercentageAccCount] + '">' + budget.account + '</td>' +
-        //                         '<td>' + expensePercentageAcc[expensePercentageAccCount] + '%</td>' +
-        //                         '<td>' + budget.total + '</td>' +
-        //                         '</tr>';
-        //                     $expenseAccTableBody.append(row);
+                            $.each(response, function(index, budget) {
+                                accounts.push(budget.account);
+                                totalsAcc.push(Number(budget.total));
+                                percentageAcc.push(Math.round((budget.total*100)/sumTotal));
+                                var row = '<tr>' +
+                                    '<td style="background-color:' + colorsAcc[count] + '">' + budget.account + '</td>' +
+                                    '<td>' + percentageAcc[count] + '%</td>' +
+                                    '<td>' + budget.total + '</td>' +
+                                    '</tr>';
+                                $AccTableBody.append(row);
 
-        //                     expensePercentageAccCount++;
-        //                 });
-        //             }
-        //         },
-        //         error: function(xhr, status, error) {
-        //             console.error('Request failed:', error);
-        //         }
-        //     }) //end expense ajax and table
-        //     // start account income ajax and table
-        //     $.ajax({
-        //         url: 'requestHandler.php?action=accountRange&in_out=1' +
-        //         '&from=' + date_from + '&to=' + date_to,
-        //         method: 'GET',
-        //         success: function(response) {
-
-        //             var $incomeAccTableHead = $('#income-acc-table thead');
-        //             var $incomeAccTableBody = $('#income-acc-table tbody');
-
-        //             if (response.error) {
-        //                 // alert(response.error);
-        //                 $incomeAccTableHead.empty();
-        //                 $incomeAccTableBody.empty();
-        //             } else {
-        //                 var sumTotal = 1;
-
-        //                 if (response.length > 0) {
-        //                     sumTotal = response.reduce(function (sum, res) {
-        //                         return sum + Number(res.total);
-        //                     }, 0);
-        //                 }
-
-        //                 $incomeAccTableHead.empty();
-        //                 $incomeAccTableHead.append('<tr><th>Account</th><th>Percentage</th><th>Amount</th></tr>');
-        //                 $incomeAccTableBody.empty();
-
-        //                 incomePercentageAccCount = 0;
-
-        //                 $.each(response, function(index, budget) {
-        //                     incomeAccount.push(budget.account);
-        //                     incomeTotalsAcc.push(Number(budget.total));
-        //                     incomePercentageAcc.push(Math.round((budget.total*100)/sumTotal));
-        //                     var row = '<tr>' +
-        //                         '<td style="background-color:' + colorsAcc[incomePercentageAccCount] + '">' + budget.account + '</td>' +
-        //                         '<td>' + incomePercentageAcc[incomePercentageAccCount] + '%</td>' +
-        //                         '<td>' + budget.total + '</td>' +
-        //                         '</tr>';
-        //                     $incomeAccTableBody.append(row);
-
-        //                     incomePercentageAccCount++;
-        //                 });
-        //             }
-        //         },
-        //         error: function(xhr, status, error) {
-        //             console.error('Request failed:', error);
-        //         }
-        //     }) //end account income ajax and table
-        // }
+                                count++;
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Request failed:', error);
+                    }
+                }) //end expense ajax and table
+            }
+        }
         $( "#budget-tabs" ).tabs();
         $( "#tabs" ).tabs();
     }); //end js

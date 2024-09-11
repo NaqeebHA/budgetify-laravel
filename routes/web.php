@@ -100,7 +100,7 @@ Route::get('/budgets/{budget}/delete-attachment', [BudgetController::class, 'del
 
 Route::get('/budgets/analytics/category', [BudgetController::class, 'analyticsByCategory'])->name('budgets.analytics-category');
 
-Route::get('/budgets/analytics/account?in_out={in_out}&from={date_from}&to={date_to}', [BudgetController::class, 'analyticsByAccount'])->name('budgets.analytics-account');
+Route::get('/budgets/analytics/account', [BudgetController::class, 'analyticsByAccount'])->name('budgets.analytics-account');
 
 //events
 Route::get('/events', [EventController::class, 'index'])->name('events.index');
