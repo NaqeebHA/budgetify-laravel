@@ -77,10 +77,10 @@ body {
     background-color: blue;
 }
 
-
-.preview-image {
-    max-width: 100%;
-    height: auto;
+#preview {
+    display:none;
+    max-height: 300px;
+    width:auto
 }
 
 #back-btn {

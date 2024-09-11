@@ -14,20 +14,20 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>Note</th>
-                            <th>Color</th>
-                            <th>Brand</th>
-                            <th>Style</th>
-                            <th>Actions</th>
+                            <th>Title</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Location</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($events as $event)
                             <tr>
-                                <td>{{ $event->note }}</td>
-                                <td style="background-color:{{ $event->color }}"></td>
-                                <td>{{ $event->brand->name }}</td>
-                                <td>{{ $event->style->name }}</td>
+                                <td>{{ $event->title }}</td>
+                                <td>{{ $event->from_time }}</td>
+                                <td>{{ $event->to_time }}</td>
+                                <td>{{ $event->location }}</td>
                                 <td>
                                     <a class="btn btn-warning text-white" href="{{ route('events.edit', $event->id) }}"><i class="bi bi-pencil-square"></i></a>
                                     <form action="{{ route('events.destroy', $event->id) }}" method="POST" style="display: inline-block;">
