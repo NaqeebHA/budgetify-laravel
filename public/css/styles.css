@@ -81,8 +81,19 @@ body {
     background-color: black;
 }
 
+.preview-image {
+    max-width: 100%;
+    height: auto;
+}
+
+#back-btn {
+    outline: solid white 2px;
+    margin-right: 2px;
+    font-weight: bolder;
+}
+
 footer {
     text-align: center;
     padding: 5px;
     color: black;
-  }
+}

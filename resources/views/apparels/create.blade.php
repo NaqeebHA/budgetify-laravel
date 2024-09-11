@@ -68,15 +68,22 @@
                         @endforeach
                     </select>
                 </div>
+            </div>
+            <div class="row">
                 <div class="col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
                     <label for="attachment" class="form-label">Attachment</label>
                     <input class="form-control" type="file" id="attachment" name="attachment">
                 </div>
             </div>
+            <div class="row">
+                <div class="preview-container col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
+                    <img id="preview" class="preview-image mx-auto" alt="Image Preview" style="display:none;">
+                </div>
+            </div>
+            <button id="back-btn" type="button" class="btn btn-secondary" onclick="window.history.back();">Cancel</button>
             <button type="submit" id="submit-btn" class="btn rounded">Add Apparel</button>
         </form>
     </div>
-
 </div>
 <div id="response"></div>
 
