@@ -27,7 +27,7 @@
                                 <td>{{ $event->title }}</td>
                                 <td>{{ $event->from_time }}</td>
                                 <td>{{ $event->to_time }}</td>
-                                <td>{{ $event->location }}</td>
+                                <td><a href="https://www.google.com/maps?q={{ $event->location }}" target="_blank">{{ $event->location }}</a></td>
                                 <td>
                                     <a class="btn btn-warning text-white" href="{{ route('events.edit', $event->id) }}"><i class="bi bi-pencil-square"></i></a>
                                     <form action="{{ route('events.destroy', $event->id) }}" method="POST" style="display: inline-block;">
