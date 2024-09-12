@@ -132,3 +132,17 @@ Route::delete('/apparels/{apparel}', [ApparelController::class, 'destroy'])->nam
 
 Route::get('/apparels/{apparel}/delete-attachment', [ApparelController::class, 'deleteAttachment'])->name('apparels.deleteAttachment');
 
+Route::get('/apparels/analytics/type', [ApparelController::class, 'analyticsByType'])->name('apparels.analytics-type');
+
+Route::get('/apparels/analytics/style', [ApparelController::class, 'analyticsByStyle'])->name('apparels.analytics-style');
+
+Route::get('/apparels/analytics/brand', [ApparelController::class, 'analyticsByBrand'])->name('apparels.analytics-brand');
+
+Route::get('/apparels/analytics/type/timeframe', [ApparelController::class, 'analyticsByTypeTimeframe'])->name('apparels.analytics-typeTimeframe');
+
+Route::get('/apparels/analytics/style/timeframe', [ApparelController::class, 'analyticsByStyleTimeframe'])->name('apparels.analytics-styleTimeframe');
+
+Route::get('/apparels/analytics/brand/timeframe', [ApparelController::class, 'analyticsByBrandTimeframe'])->name('apparels.analytics-brandTimeframe');
+
+
+

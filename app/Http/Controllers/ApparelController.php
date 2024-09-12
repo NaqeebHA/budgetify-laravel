@@ -8,8 +8,8 @@ use App\Models\ApparelType;
 use App\Models\Style;
 use App\Models\Brand;
 use App\Models\Budget;
-
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class ApparelController extends Controller
 {
@@ -115,5 +115,71 @@ class ApparelController extends Controller
         $apparel->save();
 
         return response()->json(['success' => 'Attachment deleted successfully.']);
+    }
+
+    public function analyticsByType()
+    {
+        $totalApparelByType = Apparel::select('apparel_types.name AS name', DB::raw('COUNT(apparels.id) AS count'))
+        ->leftJoin('apparel_types', 'apparels.type_id', '=', 'apparel_types.id')
+        ->groupBy('name')
+        ->get();
+        return response()->json($totalApparelByType);
+    }
+
+    public function analyticsByTypeTimeframe(Request $request)
+    {
+        $date_from = $request->query('from');
+        $date_to = $request->query('to');
+
+        $totalApparelByType = Apparel::select('apparel_types.name AS name', DB::raw('COUNT(apparels.id) AS count'))
+        ->leftJoin('apparel_types', 'apparels.type_id', '=', 'apparel_types.id')
+        ->whereBetween('apparels.purchased_date', [$date_from, $date_to])
+        ->groupBy('name')
+        ->get();
+        return response()->json($totalApparelByType);
+    }
+
+    public function analyticsByStyle()
+    {
+        $totalApparelByStyle = Apparel::select('styles.name AS name', DB::raw('COUNT(apparels.id) AS count'))
+        ->leftJoin('styles', 'apparels.style_id', '=', 'styles.id')
+        ->groupBy('name')
+        ->get();
+        return response()->json($totalApparelByStyle);
+    }
+
+    public function analyticsByStyleTimeframe(Request $request)
+    {
+        $date_from = $request->query('from');
+        $date_to = $request->query('to');
+
+        $totalApparelByStyle = Apparel::select('styles.name AS name', DB::raw('COUNT(apparels.id) AS count'))
+        ->leftJoin('styles', 'apparels.style_id', '=', 'styles.id')
+        ->whereBetween('apparels.purchased_date', [$date_from, $date_to])
+        ->groupBy('name')
+        ->get();
+        return response()->json($totalApparelByStyle);
+    }
+
+    public function analyticsByBrand()
+    {
+        $totalApparelByBrand = Apparel::select('brands.name AS name', DB::raw('COUNT(apparels.id) AS count'))
+        ->leftJoin('brands', 'apparels.brand_id', '=', 'brands.id')
+        ->groupBy('name')
+        ->get();
+        return response()->json($totalApparelByBrand);
+    }
+
+    public function analyticsByBrandTimeframe(Request $request)
+    {
+        $date_from = $request->query('from');
+        $date_to = $request->query('to');
+
+        $totalApparelByBrand = Apparel::select('brands.name AS name', DB::raw('COUNT(apparels.id) AS count'))
+        ->leftJoin('brands', 'apparels.brand_id', '=', 'brands.id')
+        ->whereBetween('apparels.purchased_date', [$date_from, $date_to])
+        ->groupBy('name')
+        ->get();
+        return response()->json($totalApparelByBrand);
     }
 }
