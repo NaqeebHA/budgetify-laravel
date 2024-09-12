@@ -60,15 +60,13 @@
                 </div>
                 @if ($event->attachment ?? false)
                     <div class="col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
-                        <div class="row">
-                            <p>Current Attachment</p>
-                            <div class="imgDiv mb-3">
-                                <img id="attachmentDisplay" class="rounded" src="{{asset('storage/' . $event->attachment)}}" alt="Failed to load attachment" style="width: 100%; height:auto">
-                            </div>
+                        <div class="row mb-1">
+                            <p class="mb-2">Current Attachment</p>
+                            <a id="removeAttachment" class="btn btn-warning">Delete Attachment</a>
                         </div>
                         <div class="row">
-                            <div class="deleteImgDiv">
-                                <a id="removeAttachment" class="btn btn-warning">Delete Attachment</a>
+                            <div class="imgDiv">
+                                <img id="attachmentDisplay" class="rounded" src="{{asset('storage/' . $event->attachment)}}" alt="Failed to load attachment" style="width: 100%; height:auto">
                             </div>
                         </div>
                     </div>

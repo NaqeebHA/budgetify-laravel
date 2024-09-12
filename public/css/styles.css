@@ -89,6 +89,10 @@ body {
     font-weight: bolder;
 }
 
+.daterangepicker {
+    color: black;
+}
+
 footer {
     text-align: center;
     padding: 5px;
