@@ -36,7 +36,7 @@
                 </div>
                 <div class="col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
                     <label for="description" class="form-label">Description</label>
-                    <textarea class="form-control" id="description" name="description" type="text" minlength="2" maxlength="255" rows="1"value="{{ $event->description }}" ></textarea>
+                    <textarea class="form-control" id="description" name="description" type="text" minlength="2" maxlength="255" rows="1">{{ $event->description }}</textarea>
                 </div>
             </div>
             <div class="row">

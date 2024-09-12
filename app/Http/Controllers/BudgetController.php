@@ -8,6 +8,8 @@ use App\Models\Category;
 use App\Models\Account;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreBudgetRequest;
+use App\Http\Requests\UpdateBudgetRequest;
 
 class BudgetController extends Controller
 {
@@ -25,19 +27,8 @@ class BudgetController extends Controller
     }
 
     // Store a newly created budget in the database
-    public function store(Request $request)
+    public function store(StoreBudgetRequest $request)
     {
-        $request->validate([
-            'in_out' => 'required',
-            'amount' => 'required',
-            'note' => 'nullable',
-            'description' => 'nullable',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,jfif,gif|max:2048',
-            'txn_datetime' => 'required',
-            'category_id' => 'required',
-            'account_id' => 'required',
-        ]);
-
         $created_budget = Budget::create($request->all());
 
         if ($request->hasFile('attachment')) {
@@ -57,19 +48,8 @@ class BudgetController extends Controller
     }
 
     // Update a specific budget in the database
-    public function update(Request $request, Budget $budget)
+    public function update(UpdateBudgetRequest $request, Budget $budget)
     {
-        $request->validate([
-            'in_out' => 'required',
-            'amount' => 'required',
-            'note' => 'nullable',
-            'description' => 'nullable',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,jfif,gif|max:2048',
-            'txn_datetime' => 'required',
-            'category_id' => 'required',
-            'account_id' => 'required',
-        ]);
-
         if ($request->hasFile('attachment')) {
             if ($budget->attachment ?? false) {
                 Storage::delete('public/' . $budget->attachment);

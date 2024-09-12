@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Budget;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\StoreEventRequest;
+use App\Http\Requests\UpdateEventRequest;
 
 class EventController extends Controller
 {
@@ -23,18 +25,8 @@ class EventController extends Controller
     }
 
     // Store a newly created event in the database
-    public function store(Request $request)
+    public function store(StoreEventRequest $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'location' => 'nullable',
-            'description' => 'nullable',
-            'attachment' => 'nullable',
-            'budget_id' => 'nullable',
-            'from_time' => 'nullable',
-            'to_time' => 'nullable',
-        ]);
-
         $created_event = Event::create($request->all());
 
         if ($request->hasFile('attachment')) {
@@ -55,18 +47,8 @@ class EventController extends Controller
     }
 
     // Update a specific event in the database
-    public function update(Request $request, Event $event)
+    public function update(UpdateEventRequest $request, Event $event)
     {
-        $request->validate([
-            'title' => 'required',
-            'location' => 'nullable',
-            'description' => 'nullable',
-            'attachment' => 'nullable',
-            'budget_id' => 'nullable',
-            'from_time' => 'nullable',
-            'to_time' => 'nullable',
-        ]);
-
         if ($request->hasFile('attachment')) {
             if ($event->attachment ?? false) {
                 Storage::delete('public/' . $event->attachment);

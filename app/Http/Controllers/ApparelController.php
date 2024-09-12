@@ -10,6 +10,8 @@ use App\Models\Brand;
 use App\Models\Budget;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StoreApparelRequest;
+use App\Http\Requests\UpdateApparelRequest;
 
 class ApparelController extends Controller
 {
@@ -30,22 +32,8 @@ class ApparelController extends Controller
     }
 
     // Store a newly created apparel in the database
-    public function store(Request $request)
+    public function store(StoreApparelRequest $request)
     {
-        $request->validate([
-            'note' => 'required',
-            'price' => 'required',
-            'color' => 'required',
-            'description' => 'nullable',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,jfif,gif,webp|max:2048',
-            'purchased_date' => 'nullable',
-            'qty' => 'required',
-            'type_id' => 'required',
-            'style_id' => 'required',
-            'brand_id' => 'required',
-            'budget_id' => 'nullable',
-        ]);
-
         $created_apparel = Apparel::create($request->all());
 
         if ($request->hasFile('attachment')) {
@@ -68,22 +56,8 @@ class ApparelController extends Controller
     }
 
     // Update a specific apparel in the database
-    public function update(Request $request, Apparel $apparel)
+    public function update(UpdateApparelRequest $request, Apparel $apparel)
     {
-        $request->validate([
-            'note' => 'required',
-            'price' => 'required',
-            'color' => 'required',
-            'description' => 'nullable',
-            'attachment' => 'nullable|file|mimes:jpg,jpeg,png,jfif,gif,webp|max:2048',
-            'purchased_date' => 'nullable',
-            'qty' => 'required',
-            'type_id' => 'required',
-            'style_id' => 'required',
-            'brand_id' => 'required',
-            'budget_id' => 'nullable',
-        ]);
-
         if ($request->hasFile('attachment')) {
             if ($apparel->attachment ?? false) {
                 Storage::delete('public/' . $apparel->attachment);
