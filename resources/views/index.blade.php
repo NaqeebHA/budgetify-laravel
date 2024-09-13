@@ -109,7 +109,8 @@
                                         <tbody></tbody>
                                     </table>
                                 </div>
-                            </div>                        </div>
+                            </div>
+                        </div>
                         <div id="apparel-timeframe">
                             <div class="row">
                                 <div class="col bg-dark mx-auto p-2 col-md-4">
