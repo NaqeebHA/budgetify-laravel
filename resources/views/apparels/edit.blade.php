@@ -23,7 +23,7 @@
                 </div>
                 <div class="col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
                     <label for="purchased_date" class="form-label">Purchased Date</label>
-                    <input id="purchased_date" type="date" name="purchased_date" class="form-control"/>
+                    <input id="purchased_date" type="date" name="purchased_date" value="{{ $apparel->getDateAttribute($apparel->purchased_date) }}" class="form-control"/>
                 </div>
                 <div class="col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
                     <label for="note" class="form-label">Note</label>

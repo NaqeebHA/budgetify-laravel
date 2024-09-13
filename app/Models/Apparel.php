@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
+use Carbon\Carbon;
 
 class Apparel extends Model
 {
@@ -52,5 +53,9 @@ class Apparel extends Model
                 Storage::delete('public/' . $budget->attachment);
             }
         });
+    }
+
+    public function getDateAttribute($value) {
+        return Carbon::parse($value)->format('Y-m-d');
     }
 }

@@ -25,7 +25,8 @@ class Event extends Model
         'to_time'=> 'datetime',
     ];
 
-    public function budget() {
+    public function budget()
+    {
         return $this->belongsTo(Budget::class);
     }
     protected static function boot()
