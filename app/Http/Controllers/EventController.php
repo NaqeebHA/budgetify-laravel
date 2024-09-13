@@ -4,80 +4,73 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Event;
-use App\Models\Budget;
-use Illuminate\Support\Facades\Storage;
+use App\Services\EventService;
 use App\Http\Requests\StoreEventRequest;
 use App\Http\Requests\UpdateEventRequest;
 
 class EventController extends Controller
 {
+    protected $eventService;
+
+    public function __construct(EventService $eventService)
+    {
+        $this->eventService = $eventService;
+    }
+
     public function index()
     {
-        $events = Event::all();
+        $events = $this->eventService->getAllEvents();
         return view('events.index', compact('events'));
     }
 
     // Show the form for creating a new event
     public function create()
     {
-        $budgets = Budget::all();
-        return view('events.create', compact('budgets'));
+        $dropdowns = $this->eventService->eventDropdowns();
+        return view('events.create', $dropdowns);
     }
 
     // Store a newly created event in the database
     public function store(StoreEventRequest $request)
     {
-        $created_event = Event::create($request->all());
-
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            $path = $file->store('event-attachments', 'public');
-            $created_event->attachment = $path;
-            $created_event->save();
-        }
-
+        $this->eventService->addEvent($request);
         return redirect()->route('events.index')->with('success', 'Event added successfully.');
     }
 
     // Show the form for editing a specific event
     public function edit(Event $event)
     {
-        $budgets = Budget::all();
-        return view('events.edit', compact(['event', 'budgets']));
+        $dropdowns = $this->eventService->eventDropdowns();
+        return view('events.edit', compact('event'), $dropdowns);
     }
 
     // Update a specific event in the database
     public function update(UpdateEventRequest $request, Event $event)
     {
-        if ($request->hasFile('attachment')) {
-            if ($event->attachment ?? false) {
-                Storage::delete('public/' . $event->attachment);
-                $event->update($request->all());
-            }
-            $file = $request->file('attachment');
-            $path = $file->store('event-attachments', 'public');
-            $event->attachment = $path;
-            $event->save();
-        } else {
-            $event->update($request->all());
-        }
+        $this->eventService->updateEventByRequest($request, $event);
         return redirect()->route('events.index')->with('success', 'Event updated successfully.');
     }
 
     // Delete a specific event from the database
     public function destroy(Event $event)
     {
-        $event->delete();
-
+        $this->eventService->deleteEvent($event);
         return redirect()->route('events.index')->with('success', 'Event deleted successfully.');
     }
 
+    // Delete an attachment from the event
     public function deleteAttachment(Event $event)
     {
-        Storage::delete('public/' . $event->attachment);
-        $event->attachment = null;
-        $event->save();
-
+        $this->eventService->deleteEventAttachment($event);
         return response()->json(['success' => 'Attachment deleted successfully.']);
+    }
+
+    public function analyticsByTimeframe(Request $request)
+    {
+        $date_from = $request->query('from');
+        $date_to = $request->query('to');
+
+        $events = $this->eventService->eventByTimeframe($date_from, $date_to);
+        return response()->json($events);
     }
 }

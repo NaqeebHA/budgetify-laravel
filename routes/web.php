@@ -117,6 +117,8 @@ Route::delete('/events/{event}', [EventController::class, 'destroy'])->name('eve
 
 Route::get('/events/{event}/delete-attachment', [EventController::class, 'deleteAttachment'])->name('events.deleteAttachment');
 
+Route::get('/events/analytics/timeframe', [EventController::class, 'analyticsByTimeframe'])->name('budgets.analytics-timeframe');
+
 //apparels
 Route::get('/apparels', [ApparelController::class, 'index'])->name('apparels.index');
 

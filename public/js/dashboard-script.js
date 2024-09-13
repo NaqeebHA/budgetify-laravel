@@ -31,12 +31,14 @@ $(document).ready(function() {
         date_to = picker.endDate.format('YYYY-MM-DD');
         fetchBudgetAnalytics(date_from, date_to);
         fetchApparelAnalyticsTimeframe(date_from, date_to);
+        fetchEventAnalyticsTimeframe(date_from, date_to)
     });
 
     cb(start, end);
     fetchBudgetAnalytics(startSQLFormat, endSQLFormat);
     fetchApparelAnalyticsAllTime();
     fetchApparelAnalyticsTimeframe(startSQLFormat, endSQLFormat);
+    fetchEventAnalyticsTimeframe(startSQLFormat, endSQLFormat)
 
     function fetchBudgetAnalytics(date_from, date_to)
     {
@@ -217,7 +219,6 @@ $(document).ready(function() {
         }
     }
 
-
     function fetchApparelAnalyticsAllTime()
     {
         var colorsAcc = ['blue', 'red', 'green', 'yellow', '#cc65fe', '#ffce56', '#36a2eb', '#ff6384'];
@@ -305,6 +306,55 @@ $(document).ready(function() {
                                 '<td style="background-color:' + colorsAcc[count] + '">' + apparel.name + '</td>' +
                                 '<td>' + apparel.count + '</td>' +
                                 '</tr>';
+                            $AccTableBody.append(row);
+
+                            count++;
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Request failed:', error);
+                }
+            }) //end expense ajax and table
+        }
+    }
+
+    function fetchEventAnalyticsTimeframe(date_from, date_to)
+    {
+        ajaxEventTimeframe(date_from, date_to);
+        // start account expense ajax and table
+        function ajaxEventTimeframe(date_from, date_to)
+        {
+            $.ajax({
+                url: `/events/analytics/timeframe?from=${date_from}&to=${date_to}`,
+                method: 'GET',
+                success: function(response) {
+
+                    var $AccTableHead = $(`#event-timeframe-table thead`);
+                    var $AccTableBody = $(`#event-timeframe-table tbody`);
+
+                    if (response.error || response.length == 0) {
+                        $AccTableHead.empty();
+                        $AccTableBody.empty();
+                    } else {
+                        $AccTableHead.empty();
+                        $AccTableHead.append(
+                                `<tr>
+                                    <th>Title</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Location</th>
+                                </tr>`);
+                        $AccTableBody.empty();
+
+                        $.each(response, function(index, event) {
+                            var row =
+                                `<tr>
+                                    <td>${event.title}</td>
+                                    <td>${moment(event.from_time).format('MMMM Do YYYY, h:mm:ss a')}</td>
+                                    <td>${moment(event.to_time).format('MMMM Do YYYY, h:mm:ss a')}</td>
+                                    <td><a href="https://www.google.com/maps?q=${event.location}" target="_blank">${event.location}</a></td>
+                                </tr>`;
                             $AccTableBody.append(row);
 
                             count++;

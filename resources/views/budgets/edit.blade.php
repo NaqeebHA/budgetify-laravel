@@ -54,28 +54,28 @@
             </div>
             <div class="row">
                 <div class="col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
-                    <label for="attachment" class="form-label">Attachment</label>
-                    <input class="form-control" type="file" id="attachment" name="attachment">
+                    <div class="row mb-1">
+                        <label for="attachment" class="form-label">Attachment</label>
+                        <input class="form-control" type="file" id="attachment" name="attachment">
+                    </div>
+                    <div class="preview-container row">
+                        <img id="preview" class="preview-image mx-auto" alt="Image Preview">
+                    </div>
                 </div>
+                @if ($budget->attachment ?? false)
+                    <div class="col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
+                        <div class="row mb-1">
+                            <p class="mb-2">Current Attachment</p>
+                            <a id="removeAttachment" class="btn btn-warning">Delete Attachment</a>
+                        </div>
+                        <div class="row">
+                            <div class="imgDiv">
+                                <img id="attachmentDisplay" class="rounded" src="{{asset('storage/' . $budget->attachment)}}" alt="Failed to load attachment" style="width: 100%; height:auto">
+                            </div>
+                        </div>
+                    </div>
+                @endif
             </div>
-            <div class="row">
-                <div class="preview-container col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
-                    <img id="preview" class="preview-image mx-auto" alt="Image Preview" style="display:none;">
-                </div>
-            </div>
-
-            @if ($budget->attachment ?? false)
-            <div class="row">
-                <div class="imgDiv col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
-                    <img id="attachmentDisplay" class="rounded" src="{{asset('storage/' . $budget->attachment)}}" alt="Failed to load attachment" style="width: 100%; height:auto">
-                </div>
-            </div>
-            <div class="row">
-                <div class="deleteImgDiv col col-lg-3 col-md-4 col-sm-6 mb-3 mx-auto">
-                    <a id="removeAttachment" class="btn btn-warning">Delete Attachment</a>
-                </div>
-            </div>
-            @endif
 
             <button id="back-btn" type="button" class="btn btn-secondary" onclick="window.history.back();">Cancel</button>
             <button type="submit" id="submit-btn" class="btn rounded">Update Budget</button>

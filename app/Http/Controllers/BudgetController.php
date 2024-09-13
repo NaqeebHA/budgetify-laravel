@@ -4,82 +4,64 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Budget;
-use App\Models\Category;
-use App\Models\Account;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
+use App\Services\BudgetService;
 use App\Http\Requests\StoreBudgetRequest;
 use App\Http\Requests\UpdateBudgetRequest;
 
 class BudgetController extends Controller
 {
+    protected $budgetService;
+
+    public function __construct(BudgetService $budgetService)
+    {
+        $this->budgetService = $budgetService;
+    }
+
     public function index()
     {
-        $budgets = Budget::all();
+        $budgets = $this->budgetService->getAllBudgets();
         return view('budgets.index', compact('budgets'));
     }
 
     // Show the form for creating a new budget
     public function create()
     {
-        $accounts = Account::all();
-        return view('budgets.create', compact('accounts'));
+        $dropdowns = $this->budgetService->budgetDropdowns();
+        return view('budgets.create', $dropdowns);
     }
 
     // Store a newly created budget in the database
     public function store(StoreBudgetRequest $request)
     {
-        $created_budget = Budget::create($request->all());
-
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            $path = $file->store('budget-attachments', 'public');
-            $created_budget->attachment = $path;
-            $created_budget->save();
-        }
+        $this->budgetService->addbudget($request);
         return redirect()->route('budgets.index')->with('success', 'Budget added successfully.');
     }
 
     // Show the form for editing a specific budget
     public function edit(Budget $budget)
     {
-        $accounts = Account::all();
-        return view('budgets.edit', compact(['budget','accounts']));
+        $dropdowns = $this->budgetService->budgetDropdowns();
+        return view('budgets.edit', compact('budget'), $dropdowns);
     }
 
     // Update a specific budget in the database
     public function update(UpdateBudgetRequest $request, Budget $budget)
     {
-        if ($request->hasFile('attachment')) {
-            if ($budget->attachment ?? false) {
-                Storage::delete('public/' . $budget->attachment);
-                $budget->update($request->all());
-            }
-            $file = $request->file('attachment');
-            $path = $file->store('budget-attachments', 'public');
-            $budget->attachment = $path;
-            $budget->save();
-        } else {
-            $budget->update($request->all());
-        }
+        $this->budgetService->updateBudgetByRequest($request, $budget);
         return redirect()->route('budgets.index')->with('success', 'Budget updated successfully.');
     }
 
     // Delete a specific budget from the database
     public function destroy(Budget $budget)
     {
-        $budget->delete();
-
+        $this->budgetService->deleteBudget($budget);
         return redirect()->route('budgets.index')->with('success', 'Budget deleted successfully.');
     }
 
     // Delete an attachment from the budget
     public function deleteAttachment(Budget $budget)
     {
-        Storage::delete('public/' . $budget->attachment);
-        $budget->attachment = null;
-        $budget->save();
-
+        $this->budgetService->deleteBudgetAttachment($budget);
         return response()->json(['success' => 'Attachment deleted successfully.']);
     }
 
@@ -89,13 +71,7 @@ class BudgetController extends Controller
         $date_from = $request->query('from');
         $date_to = $request->query('to');
 
-        $budgets = Budget::select('categories.name AS category', DB::raw('SUM(budgets.amount) AS total'))
-        ->leftJoin('categories', 'budgets.category_id', '=', 'categories.id')
-        // ->whereBetween(DB::raw('DATE(budgets.txn_datetime)'), [$date_from, $date_to])
-        ->whereBetween('budgets.txn_datetime', [$date_from . ' 00:00:00', $date_to . ' 23:59:59'])
-        ->where('budgets.in_out', '=', $in_out)
-        ->groupBy('categories.name')
-        ->get();
+        $budgets = $this->budgetService->analyticsByCategory($in_out, $date_from, $date_to);
         return response()->json($budgets);
     }
 
@@ -105,14 +81,7 @@ class BudgetController extends Controller
         $date_from = $request->query('from');
         $date_to = $request->query('to');
 
-        $budgets = Budget::select('accounts.name AS account', DB::raw('SUM(budgets.amount) AS total'))
-        ->leftJoin('accounts', 'budgets.account_id', '=', 'accounts.id')
-        // ->whereBetween(DB::raw('DATE(budgets.txn_datetime)'), [$date_from, $date_to])
-        ->whereBetween('budgets.txn_datetime', [$date_from . ' 00:00:00', $date_to . ' 23:59:59'])
-        ->where('budgets.in_out', '=', $in_out)
-        ->groupBy('account')
-        ->get();
-        // dd($budgets);
+        $budgets = $budgets = $this->budgetService->analyticsByAccount($in_out, $date_from, $date_to);
         return response()->json($budgets);
     }
 }

@@ -4,99 +4,70 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Apparel;
-use App\Models\ApparelType;
-use App\Models\Style;
-use App\Models\Brand;
-use App\Models\Budget;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\DB;
+use App\Services\ApparelService;
 use App\Http\Requests\StoreApparelRequest;
 use App\Http\Requests\UpdateApparelRequest;
 
 class ApparelController extends Controller
 {
+    protected $apparelService;
+
+    public function __construct(ApparelService $apparelService)
+    {
+        $this->apparelService = $apparelService;
+    }
+
     public function index()
     {
-        $apparels = Apparel::all();
+        $apparels = $this->apparelService->getAllApparels();
         return view('apparels.index', compact('apparels'));
     }
 
     // Show the form for creating a new apparel
     public function create()
     {
-        $apparelTypes = ApparelType::all();
-        $styles = Style::all();
-        $brands = Brand::all();
-        $budgets = Budget::all();
-        return view('apparels.create', compact(['apparelTypes', 'styles', 'brands', 'budgets']));
+        $dropdowns = $this->apparelService->apparelDropdowns();
+        return view('apparels.create', $dropdowns);
     }
 
     // Store a newly created apparel in the database
     public function store(StoreApparelRequest $request)
     {
-        $created_apparel = Apparel::create($request->all());
-
-        if ($request->hasFile('attachment')) {
-            $file = $request->file('attachment');
-            $path = $file->store('apparel-attachments', 'public');
-            $created_apparel->attachment = $path;
-            $created_apparel->save();
-        }
+        $this->apparelService->addApparel($request);
         return redirect()->route('apparels.index')->with('success', 'Apparel added successfully.');
     }
 
     // Show the form for editing a specific apparel
     public function edit(Apparel $apparel)
     {
-        $apparelTypes = ApparelType::all();
-        $styles = Style::all();
-        $brands = Brand::all();
-        $budgets = Budget::all();
-        return view('apparels.edit', compact(['apparel', 'apparelTypes', 'styles', 'brands', 'budgets']));
+        $dropdowns = $this->apparelService->apparelDropdowns();
+        return view('apparels.edit', compact('apparel'), $dropdowns);
     }
 
     // Update a specific apparel in the database
     public function update(UpdateApparelRequest $request, Apparel $apparel)
     {
-        if ($request->hasFile('attachment')) {
-            if ($apparel->attachment ?? false) {
-                Storage::delete('public/' . $apparel->attachment);
-                $apparel->update($request->all());
-            }
-            $file = $request->file('attachment');
-            $path = $file->store('apparel-attachments', 'public');
-            $apparel->attachment = $path;
-            $apparel->save();
-        } else {
-            $apparel->update($request->all());
-        }
+        $this->apparelService->updateApparelByRequest($request, $apparel);
         return redirect()->route('apparels.index')->with('success', 'Apparel updated successfully.');
     }
 
     // Delete a specific apparel from the database
     public function destroy(Apparel $apparel)
     {
-        $apparel->delete();
-
+        $this->apparelService->deleteApparel($apparel);
         return redirect()->route('apparels.index')->with('success', 'Apparel deleted successfully.');
     }
 
     // Delete an attachment from the apparel
     public function deleteAttachment(Apparel $apparel)
     {
-        Storage::delete('public/' . $apparel->attachment);
-        $apparel->attachment = null;
-        $apparel->save();
-
+        $this->apparelService->deleteApparelAttachment($apparel);
         return response()->json(['success' => 'Attachment deleted successfully.']);
     }
 
     public function analyticsByType()
     {
-        $totalApparelByType = Apparel::select('apparel_types.name AS name', DB::raw('COUNT(apparels.id) AS count'))
-        ->leftJoin('apparel_types', 'apparels.type_id', '=', 'apparel_types.id')
-        ->groupBy('name')
-        ->get();
+        $totalApparelByType = $this->apparelService->analyticsByType();
         return response()->json($totalApparelByType);
     }
 
@@ -105,20 +76,13 @@ class ApparelController extends Controller
         $date_from = $request->query('from');
         $date_to = $request->query('to');
 
-        $totalApparelByType = Apparel::select('apparel_types.name AS name', DB::raw('COUNT(apparels.id) AS count'))
-        ->leftJoin('apparel_types', 'apparels.type_id', '=', 'apparel_types.id')
-        ->whereBetween('apparels.purchased_date', [$date_from, $date_to])
-        ->groupBy('name')
-        ->get();
+        $totalApparelByType = $this->apparelService->analyticsByTypeTimeframe($date_from, $date_to);
         return response()->json($totalApparelByType);
     }
 
     public function analyticsByStyle()
     {
-        $totalApparelByStyle = Apparel::select('styles.name AS name', DB::raw('COUNT(apparels.id) AS count'))
-        ->leftJoin('styles', 'apparels.style_id', '=', 'styles.id')
-        ->groupBy('name')
-        ->get();
+        $totalApparelByStyle = $this->apparelService->analyticsByStyle();
         return response()->json($totalApparelByStyle);
     }
 
@@ -127,20 +91,13 @@ class ApparelController extends Controller
         $date_from = $request->query('from');
         $date_to = $request->query('to');
 
-        $totalApparelByStyle = Apparel::select('styles.name AS name', DB::raw('COUNT(apparels.id) AS count'))
-        ->leftJoin('styles', 'apparels.style_id', '=', 'styles.id')
-        ->whereBetween('apparels.purchased_date', [$date_from, $date_to])
-        ->groupBy('name')
-        ->get();
+        $totalApparelByStyle = $this->apparelService->analyticsByStyleTimeframe($date_from, $date_to);
         return response()->json($totalApparelByStyle);
     }
 
     public function analyticsByBrand()
     {
-        $totalApparelByBrand = Apparel::select('brands.name AS name', DB::raw('COUNT(apparels.id) AS count'))
-        ->leftJoin('brands', 'apparels.brand_id', '=', 'brands.id')
-        ->groupBy('name')
-        ->get();
+        $totalApparelByBrand = $this->apparelService->analyticsByBrand();
         return response()->json($totalApparelByBrand);
     }
 
@@ -149,11 +106,7 @@ class ApparelController extends Controller
         $date_from = $request->query('from');
         $date_to = $request->query('to');
 
-        $totalApparelByBrand = Apparel::select('brands.name AS name', DB::raw('COUNT(apparels.id) AS count'))
-        ->leftJoin('brands', 'apparels.brand_id', '=', 'brands.id')
-        ->whereBetween('apparels.purchased_date', [$date_from, $date_to])
-        ->groupBy('name')
-        ->get();
+        $totalApparelByBrand = $this->apparelService->analyticsByBrandTimeframe($date_from, $date_to);
         return response()->json($totalApparelByBrand);
     }
 }

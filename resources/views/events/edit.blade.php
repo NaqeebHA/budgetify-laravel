@@ -73,8 +73,6 @@
                 @endif
             </div>
 
-
-
             <button id="back-btn" type="button" class="btn btn-secondary" onclick="window.history.back();">Cancel</button>
             <button type="submit" id="submit-btn" class="btn rounded">Update Event</button>
         </form>
